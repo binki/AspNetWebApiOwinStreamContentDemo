@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Web.Http;
+using WebApplication1.IO;
 
 namespace WebApplication1.ApiControllers
 {
@@ -28,7 +29,10 @@ namespace WebApplication1.ApiControllers
             ms.Position = 0;
 
             var response = Request.CreateResponse();
-            response.Content = new StreamContent(ms);
+            response.Content = new StreamContent(
+                new WrappingLoggingStream(
+                    ms,
+                    true));
             response.Content.Headers.ContentType = new MediaTypeHeaderValue($"text/plain")
             {
                 CharSet = encoding.WebName,
