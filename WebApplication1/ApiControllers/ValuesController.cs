@@ -10,34 +10,41 @@ namespace WebApplication1.ApiControllers
 {
     public class ValuesController : ApiController
     {
+        static readonly Encoding encodingNoBom = new UTF8Encoding(false, true);
+        static bool log = true;
+        
         // GET api/values.
         [HttpGet]
         [HttpHead]
-        public HttpResponseMessage Get(
-            int id = 1)
+        public HttpResponseMessage Get()
         {
-            var encoding = new UTF8Encoding(false, true);
-            var ms = new MemoryStream();
-            using (var writer = new StreamWriter(ms, encoding, 8192, true))
+            var response = Request.CreateResponse();
+            var stream = GetStreamFromSomewhere();
+            if (log)
             {
-                var numLines = id;
+                stream = new WrappingLoggingStream(stream, true);
+            }
+            response.Content = new StreamContent(stream);
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue($"text/plain")
+            {
+                CharSet = encodingNoBom.WebName,
+            };
+            return response;
+        }
+
+        private Stream GetStreamFromSomewhere()
+        {
+            var ms = new MemoryStream();
+            using (var writer = new StreamWriter(ms, encodingNoBom, 8192, true))
+            {
+                var numLines = 1000;
                 foreach (var line in Enumerable.Range(0, numLines))
                 {
                     writer.WriteLine("Hey there!");
                 }
             }
             ms.Position = 0;
-
-            var response = Request.CreateResponse();
-            response.Content = new StreamContent(
-                new WrappingLoggingStream(
-                    ms,
-                    true));
-            response.Content.Headers.ContentType = new MediaTypeHeaderValue($"text/plain")
-            {
-                CharSet = encoding.WebName,
-            };
-            return response;
+            return ms;
         }
     }
 }
