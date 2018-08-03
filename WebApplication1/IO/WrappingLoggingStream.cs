@@ -46,7 +46,7 @@ namespace WebApplication1.IO
         {
             var originalPosition = CanSeek ? Position : (long?)null;
             var result = stream.Read(buffer, offset, count);
-            Console.WriteLine($"{nameof(Read)}[+{originalPosition}(, {offset}, {count}) = {result}");
+            Console.WriteLine($"{nameof(Read)}[+{originalPosition}](, {offset}, {count}) = {result}");
             return result;
         }
 
